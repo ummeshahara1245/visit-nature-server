@@ -20,7 +20,6 @@ console.log("DB_PASS from env:", process.env.DB_PASS);
 
 // মঙ্গোডিবি কানেকশন লিঙ্ক (Updated Cluster ID: lypouw8)
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lypouw8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
-
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
