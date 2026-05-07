@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection URI
-const uri = `mongodb+srv://admin:<db_password>@cluster0.lypouw8.mongodb.net/?appName=Cluster0`;
+const uri = `MONGO_URI=mongodb+srv://admin:admin2026@cluster0.lypouw8.mongodb.net/visitnature?retryWrites=true&w=majority&appName=Cluster0`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 async function run() {
