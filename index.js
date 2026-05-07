@@ -11,8 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // সঠিক কানেকশন স্ট্রিং
-const uri = "mongodb+srv://admin:admin2026@cluster0.lypouw8.mongodb.net/visitnature?retryWrites=true&w=majority&appName=Cluster0";
-
+const uri = "mongodb://admin:admin2026@cluster0-shard-00-00.lypouw8.mongodb.net:27017,cluster0-shard-00-01.lypouw8.mongodb.net:27017,cluster0-shard-00-02.lypouw8.mongodb.net:27017/visitnature?ssl=true&replicaSet=atlas-xxxxx-shard-0&authSource=admin&retryWrites=true&w=majority";
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
