@@ -11,7 +11,8 @@ app.use(cors());
 app.use(express.json());
 
 // --- MongoDB Connection ---
-const uri = `mongodb+srv://admin:admin2026@cluster0.lypouw8.mongodb.net/visitnature?retryWrites=true&w=majority`;
+// ডাটাবেস নাম visit-nature (হাইফেনসহ) নিশ্চিত করা হয়েছে
+const uri = `mongodb+srv://admin:admin2026@cluster0.lypouw8.mongodb.net/visit-nature?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
     serverApi: {
@@ -26,14 +27,102 @@ async function run() {
         await client.connect();
         console.log("Database Connected Successfully ✅");
 
-        const database = client.db('visitnature');
+        // সঠিক ডাটাবেস নাম ব্যবহার
+        const database = client.db('visit-nature');
         
-        // আপনার দেওয়া একদম সঠিক কালেকশন নাম:
-        const servicesCollection = database.collection('services'); // বহুবচন (s আছে)
-        const bookingsCollection = database.collection('booking');  // একবচন (s নেই)
+        // আপনার সঠিক কালেকশন নামসমূহ
+        const servicesCollection = database.collection('services');
+        const bookingsCollection = database.collection('booking');
 
         // --- 1. SERVICES API ---
 
+        // সব সার্ভিস পাওয়ার জন্য
+        app.get('/services', async (req, res) => {
+            const cursor = servicesCollection.find({});
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        // সিঙ্গেল সার্ভিস ডিটেইলস
+        app.get('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await servicesCollection.findOne(query);
+            res.send(result);
+        });
+
+        // সার্ভিস অ্যাড করা (Admin)
+        app.post('/services', async (req, res) => {
+            const service = req.body;
+            const result = await servicesCollection.insertOne(service);
+            res.json(result);
+        });
+
+        // সার্ভিস ডিলিট করা (Admin)
+        app.delete('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await servicesCollection.deleteOne(query);
+            res.json(result);
+        });
+
+
+        // --- 2. BOOKING API ---
+
+        // নতুন বুকিং সেভ করা
+        app.post('/bookings', async (req, res) => {
+            const booking = req.body;
+            const result = await bookingsCollection.insertOne(booking);
+            res.json(result);
+        });
+
+        // নির্দিষ্ট ইউজারের বুকিং দেখা (My Orders)
+        app.get('/myBookings/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await bookingsCollection.find(query).toArray();
+            res.send(result);
+        });
+
+        // সব বুকিং দেখা (Admin)
+        app.get('/bookings', async (req, res) => {
+            const result = await bookingsCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        // বুকিং ডিলিট করা
+        app.delete('/bookings/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await bookingsCollection.deleteOne(query);
+            res.json(result);
+        });
+
+        // বুকিং স্ট্যাটাস আপডেট করা
+        app.put('/bookings/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: { status: 'Approved' },
+            };
+            const result = await bookingsCollection.updateOne(filter, updateDoc);
+            res.json(result);
+        });
+
+    } catch (error) {
+        console.error("Database Connection Error ❌:", error);
+    }
+}
+
+run().catch(console.dir);
+
+app.get('/', (req, res) => {
+    res.send('Visit Nature Server is Running 🌲');
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on port: ${port}`);
+});
         // সব সার্ভিস পাওয়ার জন্য
         app.get('/services', async (req, res) => {
             const cursor = servicesCollection.find({});
